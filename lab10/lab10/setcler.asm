@@ -12,11 +12,10 @@ setcler:
     xor  edx, edx
     mov  ebx, 32
     div  ebx
+    shl  eax, 4
 
-    mov  ebx, [ebp + 8]  ; x
+    mov  ebx, [ebp + 8]  ; &x
 
-    mov  ecx, 4
-    shl  ecx, 2
     add  ebx, eax
 
     mov  ecx, [ebp + 16] ; p
