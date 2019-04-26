@@ -1,34 +1,35 @@
 .386
-.model	flat, c
+.model flat, c
 
-public	setcler
+public setcler
 
 .code
 setcler:
-	push	ebp
-	mov		ebp, esp
-	mov		eax, [ebp + 12]	; n
+    push ebp
+    mov  ebp, esp
+    mov  eax, [ebp + 12] ; n
 
-	xor		edx, edx
-	mov		ebx, 32
-	div		ebx
+    xor  edx, edx
+    mov  ebx, 32
+    div  ebx
 
-	mov		ebx, [ebp + 8]	; x
+    mov  ebx, [ebp + 8]  ; x
 
-	mov		ecx, 4
-	shl 	ecx, 2
-	add		ebx, eax
+    mov  ecx, 4
+    shl  ecx, 2
+    add  ebx, eax
 
-	mov		ecx, [ebp + 16]	; p
+    mov  ecx, [ebp + 16] ; p
 
-	cmp		ecx, 0
-	jz		reset
-	bts		[ebx], edx
-	jmp		exit
+    cmp  ecx, 0
+    jz   reset
+    bts  [ebx], edx
+    jmp  exit
+
 reset:
-	btr		[ebx], edx
+    btr  [ebx], edx
 
 exit:
-	pop		ebp
-	ret
+    pop  ebp
+    ret
 end
