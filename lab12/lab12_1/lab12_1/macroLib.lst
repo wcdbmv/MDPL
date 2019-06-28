@@ -1,0 +1,129 @@
+Microsoft (R) Macro Assembler Version 11.00.61030.0	    06/07/19 17:22:24
+macroLib.asm						     Page 1 - 1
+
+
+				.386
+				.model FLAT,C
+
+				include macro.txt
+			      C PUSHR MACRO RG
+			      C 	IRP REG, <RG>
+			      C 		IFIDN <REG>, <F>
+			      C 			PUSHF
+			      C 		ELSE
+			      C 			PUSH REG
+			      C 		ENDIF
+			      C 	ENDM
+			      C ENDM   
+			      C 
+			      C POPR MACRO RG
+			      C 	IRP REG, <RG>
+			      C 		IFIDN <REG>, <F>
+			      C 			POPF
+			      C 		ELSE
+			      C 			POP REG
+			      C 		ENDIF
+			      C 	ENDM
+			      C ENDM
+			      C 
+			      C XCHG_B MACRO A,B
+			      C 	XCHG AL, A
+			      C 	XCHG AL, B
+			      C 	XCHG AL, A
+			      C ENDM
+			      C 
+			      C XCHG_W MACRO A,B
+			      C 	XCHG AX, A
+			      C 	XCHG AX, B
+			      C 	XCHG AX, A
+			      C ENDM
+			      C 
+			      C XCHG_DW MACRO A,B
+			      C 	XCHG EAX, A
+			      C 	XCHG EAX, B
+			      C 	XCHG EAX, A
+			      C ENDM
+			      C 
+
+				PUBLIC CHECK
+
+ 00000000			.DATA
+ 00000000 0000			X DW 0
+ 00000002 0001			Y DW 1
+
+ 00000000			.CODE
+ 00000000			CHECK PROC
+
+				PUSHR <ESI,EDI,EBX,EBP>
+ 00000000  56		     2				PUSH ESI
+ 00000001  57		     2				PUSH EDI
+ 00000002  53		     2				PUSH EBX
+ 00000003  55		     2				PUSH EBP
+				XCHG_W X, Y
+ 00000004  66| 87 05	     1		XCHG AX, X
+	   00000000 R
+ 0000000B  66| 87 05	     1		XCHG AX, Y
+	   00000002 R
+ 00000012  66| 87 05	     1		XCHG AX, X
+	   00000000 R
+				POPR <EBP,EBX,EDI,ESI>
+ 00000019  5D		     2				POP EBP
+ 0000001A  5B		     2				POP EBX
+ 0000001B  5F		     2				POP EDI
+ 0000001C  5E		     2				POP ESI
+
+ 0000001D  C3			RET
+ 0000001E			CHECK ENDP
+
+				END
+Microsoft (R) Macro Assembler Version 11.00.61030.0	    06/07/19 17:22:24
+macroLib.asm						     Symbols 2 - 1
+
+
+
+
+Macros:
+
+                N a m e                 Type
+
+POPR . . . . . . . . . . . . . .	Proc
+PUSHR  . . . . . . . . . . . . .	Proc
+XCHG_B . . . . . . . . . . . . .	Proc
+XCHG_DW  . . . . . . . . . . . .	Proc
+XCHG_W . . . . . . . . . . . . .	Proc
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+FLAT . . . . . . . . . . . . . .	GROUP
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000004 DWord	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000001E DWord	  Public  'CODE'	
+
+
+Procedures, parameters, and locals:
+
+                N a m e                 Type     Value    Attr
+
+CHECK  . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000001E Public C
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 00000000h   
+@DataSize  . . . . . . . . . . .	Number	 00000000h   
+@Interface . . . . . . . . . . .	Number	 00000001h   
+@Model . . . . . . . . . . . . .	Number	 00000007h   
+@code  . . . . . . . . . . . . .	Text   	 _TEXT
+@data  . . . . . . . . . . . . .	Text   	 FLAT
+@fardata?  . . . . . . . . . . .	Text   	 FLAT
+@fardata . . . . . . . . . . . .	Text   	 FLAT
+@stack . . . . . . . . . . . . .	Text   	 FLAT
+X  . . . . . . . . . . . . . . .	Word	 00000000 _DATA	
+Y  . . . . . . . . . . . . . . .	Word	 00000002 _DATA	
+
+	   0 Warnings
+	   0 Errors

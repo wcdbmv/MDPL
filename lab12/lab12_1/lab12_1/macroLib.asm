@@ -1,0 +1,22 @@
+.386
+.model FLAT,C
+
+include macro.txt
+
+PUBLIC CHECK
+
+.DATA
+X DW 0
+Y DW 1
+
+.CODE
+CHECK PROC
+
+PUSHR <ESI,EDI,EBX,EBP>
+XCHG_W X, Y
+POPR <EBP,EBX,EDI,ESI>
+
+RET
+CHECK ENDP
+
+END

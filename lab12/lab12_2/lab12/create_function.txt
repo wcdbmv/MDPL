@@ -1,0 +1,69 @@
+PUSH_R macro REG_LIST
+	IRP CUR_ITEM, <REG_LIST>
+		IFIDN <CUR_ITEM>, <F>
+			PUSHF
+		ELSE
+			PUSH CUR_ITEM
+		ENDIF
+	ENDM
+ENDM
+
+POP_R macro REG_LIST
+	IRP CUR_ITEM, <REG_LIST>
+		IFIDN <CUR_ITEM>, <F>
+			POPF
+		ELSE
+			POP CUR_ITEM
+		ENDIF
+	ENDM
+ENDM
+
+create_function macro FUNCTION_NAME:REQ, RETURN_VALUE:REQ, FUNCTION_PARAMS, REG_LIST
+
+	A = 1
+	B = 0
+	D = 0
+
+	FUNCTION_NAME&:
+	push EBP
+	mov EBP, ESP
+
+	IFNB <REG_LIST>
+		IRP CUR_ITEM, <REG_LIST>
+			PUSH CUR_ITEM
+			@catstr(QQ%A) EQU CUR_ITEM
+			A = A + 1
+		ENDM
+	ELSE
+		PUSH_R <EBX, ESI, EDI>
+	ENDIF
+
+	A = A - 1 
+	B = A
+
+	D = 8
+	IFNB <FUNCTION_PARAMS>
+		IRP cur_p, <FUNCTION_PARAMS>
+			cur_p textequ @catstr(<[ebp + %D]>)
+			D = D + 4
+		ENDM
+	ENDIF
+
+	
+	IFIDN <RETURN_VALUE>, <value>
+		;вызываемая функция должна сохранять в регистр EAX возвращаемое числовое значение
+	ENDIF
+	IFIDN <RETURN_VALUE>, <pointer>
+		;вызываемая функция должна сохранять в регистр EAX указатель
+	ENDIF
+
+	IFNB <REG_LIST>
+		REPT A
+			pop @CatStr(QQ%B)
+			B = B - 1
+		ENDM
+	ELSE
+		POP_R <EDI, ESI, EBX>
+	ENDIF
+	pop EBP
+ENDM

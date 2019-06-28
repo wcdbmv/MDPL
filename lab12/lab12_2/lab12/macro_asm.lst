@@ -1,0 +1,205 @@
+Microsoft (R) Macro Assembler Version 11.00.61030.0	    06/07/19 17:09:02
+macro_asm.asm						     Page 1 - 1
+
+
+				.386
+				.model FLAT, c
+				.listall
+
+				include create_function.txt
+			      C PUSH_R macro REG_LIST
+			      C 	IRP CUR_ITEM, <REG_LIST>
+			      C 		IFIDN <CUR_ITEM>, <F>
+			      C 			PUSHF
+			      C 		ELSE
+			      C 			PUSH CUR_ITEM
+			      C 		ENDIF
+			      C 	ENDM
+			      C ENDM
+			      C 
+			      C POP_R macro REG_LIST
+			      C 	IRP CUR_ITEM, <REG_LIST>
+			      C 		IFIDN <CUR_ITEM>, <F>
+			      C 			POPF
+			      C 		ELSE
+			      C 			POP CUR_ITEM
+			      C 		ENDIF
+			      C 	ENDM
+			      C ENDM
+			      C 
+			      C create_function macro FUNCTION_NAME:REQ, RETURN_VALUE:REQ, FUNCTION_PARAMS, REG_LIST
+			      C 
+			      C 	A = 1
+			      C 	B = 0
+			      C 	D = 0
+			      C 
+			      C 	FUNCTION_NAME&:
+			      C 	push EBP
+			      C 	mov EBP, ESP
+			      C 
+			      C 	IFNB <REG_LIST>
+			      C 		IRP CUR_ITEM, <REG_LIST>
+			      C 			PUSH CUR_ITEM
+			      C 			@catstr(QQ%A) EQU CUR_ITEM
+			      C 			A = A + 1
+			      C 		ENDM
+			      C 	ELSE
+			      C 		PUSH_R <EBX, ESI, EDI>
+			      C 	ENDIF
+			      C 
+			      C 	A = A - 1 
+			      C 	B = A
+			      C 
+			      C 	D = 8
+			      C 	IFNB <FUNCTION_PARAMS>
+			      C 		IRP cur_p, <FUNCTION_PARAMS>
+			      C 			cur_p textequ @catstr(<[ebp + %D]>)
+			      C 			D = D + 4
+			      C 		ENDM
+			      C 	ENDIF
+			      C 
+			      C 	
+			      C 	IFIDN <RETURN_VALUE>, <value>
+			      C 		;вызываемая функция должна сохранять в регистр EAX возвращаемое числовое значение
+			      C 	ENDIF
+			      C 	IFIDN <RETURN_VALUE>, <pointer>
+			      C 		;вызываемая функция должна сохранять в регистр EAX указатель
+			      C 	ENDIF
+			      C 
+			      C 	IFNB <REG_LIST>
+			      C 		REPT A
+			      C 			pop @CatStr(QQ%B)
+			      C 			B = B - 1
+			      C 		ENDM
+			      C 	ELSE
+			      C 		POP_R <EDI, ESI, EBX>
+			      C 	ENDIF
+			      C 	pop EBP
+			      C ENDM
+			      C 
+
+				PUBLIC MACRO_MAIN
+
+ 00000000			.code
+ 00000000			MACRO_MAIN proc near
+					create_function sum, int, <x, y>, <ECX, EDX>
+			     1	
+ = 00000001		     1		A = 1
+ = 00000000		     1		B = 0
+ = 00000000		     1		D = 0
+			     1	
+ 00000000		     1		sum:
+ 00000000  55		     1		push EBP
+ 00000001  8B EC	     1		mov EBP, ESP
+			     1	
+			     1		IFNB <ECX, EDX>
+			     1			IRP CUR_ITEM, <ECX, EDX>
+			     1				PUSH CUR_ITEM
+			     1				@catstr(QQ%A) EQU CUR_ITEM
+			     1				A = A + 1
+			     1			ENDM
+ 00000003  51		     2				PUSH ECX
+ = ECX			     2				@catstr(QQ%A) EQU ECX
+ = 00000002		     2				A = A + 1
+ 00000004  52		     2				PUSH EDX
+ = EDX			     2				@catstr(QQ%A) EQU EDX
+ = 00000003		     2				A = A + 1
+			     1		ELSE
+			     1			PUSH_R <EBX, ESI, EDI>
+			     1		ENDIF
+			     1	
+ = 00000002		     1		A = A - 1 
+ = 00000002		     1		B = A
+			     1	
+ = 00000008		     1		D = 8
+			     1		IFNB <x, y>
+			     1			IRP cur_p, <x, y>
+			     1				cur_p textequ @catstr(<[ebp + %D]>)
+			     1				D = D + 4
+			     1			ENDM
+ = [ebp + 8]		     2				x textequ @catstr(<[ebp + %D]>)
+ = 0000000C		     2				D = D + 4
+ = [ebp + 12]		     2				y textequ @catstr(<[ebp + %D]>)
+ = 00000010		     2				D = D + 4
+			     1		ENDIF
+			     1	
+			     1		
+			     1		IFIDN <int>, <value>
+			     1			;вызываемая функция должна сохранять в регистр EAX возвращаемое числовое значение
+			     1		ENDIF
+			     1		IFIDN <int>, <pointer>
+			     1			;вызываемая функция должна сохранять в регистр EAX указатель
+			     1		ENDIF
+			     1	
+			     1		IFNB <ECX, EDX>
+			     1			REPT A
+			     1				pop @CatStr(QQ%B)
+			     1				B = B - 1
+			     1			ENDM
+ 00000005  5A		     2				pop @CatStr(QQ%B)
+ = 00000001		     2				B = B - 1
+ 00000006  59		     2				pop @CatStr(QQ%B)
+ = 00000000		     2				B = B - 1
+			     1		ELSE
+			     1			POP_R <EDI, ESI, EBX>
+			     1		ENDIF
+ 00000007  5D		     1		pop EBP
+ 00000008  C3			 	ret
+ 00000009			MACRO_MAIN endp
+
+				END
+Microsoft (R) Macro Assembler Version 11.00.61030.0	    06/07/19 17:09:02
+macro_asm.asm						     Symbols 2 - 1
+
+
+
+
+Macros:
+
+                N a m e                 Type
+
+POP_R  . . . . . . . . . . . . .	Proc
+PUSH_R . . . . . . . . . . . . .	Proc
+create_function  . . . . . . . .	Proc
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+FLAT . . . . . . . . . . . . . .	GROUP
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000000 DWord	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000009 DWord	  Public  'CODE'	
+
+
+Procedures, parameters, and locals:
+
+                N a m e                 Type     Value    Attr
+
+MACRO_MAIN . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000009 Public C
+  sum  . . . . . . . . . . . . .	L Near	 00000000 _TEXT	
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 00000000h   
+@DataSize  . . . . . . . . . . .	Number	 00000000h   
+@Interface . . . . . . . . . . .	Number	 00000001h   
+@Model . . . . . . . . . . . . .	Number	 00000007h   
+@code  . . . . . . . . . . . . .	Text   	 _TEXT
+@data  . . . . . . . . . . . . .	Text   	 FLAT
+@fardata?  . . . . . . . . . . .	Text   	 FLAT
+@fardata . . . . . . . . . . . .	Text   	 FLAT
+@stack . . . . . . . . . . . . .	Text   	 FLAT
+A  . . . . . . . . . . . . . . .	Number	 00000002h   
+B  . . . . . . . . . . . . . . .	Number	 00000000h   
+D  . . . . . . . . . . . . . . .	Number	 00000010h   
+QQ1  . . . . . . . . . . . . . .	Text   	 ECX
+QQ2  . . . . . . . . . . . . . .	Text   	 EDX
+x  . . . . . . . . . . . . . . .	Text   	 [ebp + 8]
+y  . . . . . . . . . . . . . . .	Text   	 [ebp + 12]
+
+	   0 Warnings
+	   0 Errors
